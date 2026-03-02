@@ -1,0 +1,148 @@
+.tileset-panel {
+    flex-shrink: 0; /* Prevents this panel from collapsing */
+    margin-bottom: 10px;
+}
+
+.panel {
+    border: 1px solid var(--border-color);
+    background: #111;
+    display: flex;
+    flex-direction: column;
+}
+
+.widget-grid {
+    display: grid;
+    grid-template-columns: 100px 1fr; /* Fixed width for inspector, remaining for sliders */
+    padding: 5px;
+}
+
+/* Dense Top Row */
+.inspector-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.inspector-row .group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Slider Rows: Label on Left, Slider on Right */
+.control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+	gap: 4px;
+}
+
+.control-row label {
+    font-size: 15px;
+    color: #ccc;
+    width: 70px; /* Fixed width for labels keeps sliders aligned */
+	text-align: right;
+}
+
+.slider-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.slider-container input[type="range"] {
+    flex: 1;
+    cursor: pointer;
+}
+
+.slider-val {
+    min-width: 42px;
+	font-weight: bold;
+}
+
+.rotation-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 26px);
+    grid-template-rows: repeat(3, 21px);
+    gap: 5px;
+    align-items: center;
+    justify-items: center;
+}
+
+/* Position the buttons in the grid "diamond" shape */
+.btn-270 { grid-column: 2; grid-row: 1; } /* Top */
+.btn-180 { grid-column: 1; grid-row: 2; } /* Left */
+.btn-0   { grid-column: 3; grid-row: 2; } /* Right */
+.btn-90  { grid-column: 2; grid-row: 3; } /* Bottom */
+
+/* Style adjustments for the diamond buttons */
+.rotation-grid .rot-btn {
+    width: 100%;
+    height: 100%;
+    background: #252525;
+    border: 1px solid #333;
+    color: #888;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.rotation-grid .rot-btn.active {
+    background: #a2a2a2; /* Accent color */
+    color: #000;
+    border-color: #a2a2a2;
+    font-weight: bold;
+}
+
+.rotation-grid .rot-btn:hover:not(.active) {
+    background: #333;
+    color: #fff;
+}
+
+/* Position the flip container in the center cell */
+.flip-container {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+/* Hide the actual checkbox input */
+.flip-container input {
+    display: none;
+}
+
+/* Style the custom box to match your .rot-btn */
+.flip-box {
+    width: 100%;
+    height: 100%;
+    background: #252525;
+    border: 1px solid #333;
+    color: #888;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    box-sizing: border-box;
+}
+
+/* Hover state */
+.flip-container:hover .flip-box {
+    background: #333;
+    color: #fff;
+}
+
+/* Active/Checked state - matching your #ff9d5c accent */
+.flip-container input:checked + .flip-box {
+    background: #a2a2a2;
+    color: #000;
+    border-color: #a2a2a2;
+    font-weight: bold;
+}

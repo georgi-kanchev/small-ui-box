@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>𖣯 pure-map-editor</title>
-    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/button.css">
+    <link rel="stylesheet" href="styles/map.css">
+    <link rel="stylesheet" href="styles/topbar.css">
+    <link rel="stylesheet" href="styles/sidebar.css">
+    <link rel="stylesheet" href="styles/layers.css">
+    <link rel="stylesheet" href="styles/atlas.css">
 </head>
 <body>
     
@@ -18,16 +25,16 @@
             </div>
             
             <div class="top-bar-center">
-                <div class="actions">
-                    <button>⣏⣹ Select Tile</button>
-                    <button>✏️ Set Tile</button>
-                    <button>🪣 Flood Tile</button>
-                </div>
             </div>
             
             <div class="top-bar-right">
                 <div class="tool-group">
-
+                    <div class="actions">
+                        <button>✏️ Single</button>
+                        <button>⬜ Square</button>
+                        <button>🪣 Flood</button>
+                        <button>⣏⣹ Edit</button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -38,6 +45,53 @@
                     <div class="canvas-container">
                         <canvas id="atlasCanvas"></canvas>
                     </div>
+                    
+                    <div class="panel widget-area">
+                        <div class="widget-grid">
+                            
+                            <div class="inspector-col">
+                                
+                                <div class="group">
+                                    <div class="rotation-grid">
+                                        <button class="rot-btn btn-270" title="270">270°</button>
+                                        <button class="rot-btn btn-180" title="180">180°</button>
+                                        <button class="rot-btn btn-0 active" title="0">0°</button>
+                                        <button class="rot-btn btn-90" title="90">90°</button>
+                                        
+                                        <label class="flip-container" title="Flip">
+                                            <input type="checkbox" id="flipCheck">
+                                            <span class="flip-box">Flip</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="slider-col">
+                                <div class="control-row">
+                                    <label>Frames:</label>
+                                    <div class="slider-container">
+                                        <span class="slider-val" id="val-frames">0</span>
+                                        <input type="range" min="0" max="15" value="0" id="frame-count">
+                                    </div>
+                                </div>
+                                <div class="control-row">
+                                    <label>Offset:</label>
+                                    <div class="slider-container">
+                                        <span class="slider-val" id="val-offset">0</span>
+                                        <input type="range" min="0" max="15" value="0" id="frame-offset">
+                                    </div>
+                                </div>
+                                <div class="control-row">
+                                    <label>Speed:</label>
+                                    <div class="slider-container">
+                                        <span class="slider-val" id="val-speed">0%</span>
+                                        <input type="range" min="0" max="31" value="0" id="frame-speed">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
                 
                 <div class="panel layers-panel">
@@ -86,10 +140,13 @@
             </main>
         </div>
     </div>
+    
+    <script src="scripts/global.js"></script>
+	<script src="scripts/camera.js"></script>
+	<script src="scripts/map.js"></script>
+	<script src="scripts/topbar.js"></script>
+	<script src="scripts/sidebar.js"></script>
+	<script src="scripts/atlas.js"></script>
 
-    <script src="global.js"></script>
-	<script src="camera.js"></script>
-	<script src="editor.js"></script>
-	<script src="main.js"></script>
 </body>
 </html>

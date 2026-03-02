@@ -9,3 +9,5 @@ const paletteContainer = document.getElementById('palette');
 const resizeBtn = document.getElementById('resizeBtn');
 const sidebar = document.getElementById('sidebar');
 const dragbar = document.getElementById('dragbar');
+
+document.addEventListener('contextmenu', e => e.preventDefault());

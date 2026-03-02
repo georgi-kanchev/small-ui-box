@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>𖣯 pure-map-editor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div class="app-wrapper">
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button id="atlasBtn">Import Atlas</button>
+                <button id="mapBtn">Import Map</button>
+                <button id="loadBtn">Export Map</button>
+                <button id="resizeBtn">Resize Map</button>
+            </div>
+            
+            <div class="top-bar-center">
+                <div class="actions">
+                    <button>⣏⣹ Select Tile</button>
+                    <button>✏️ Set Tile</button>
+                    <button>🪣 Flood Tile</button>
+                </div>
+            </div>
+            
+            <div class="top-bar-right">
+                <div class="tool-group">
+
+                </div>
+            </div>
+        </header>
+        
+        <div class="main-layout">
+            <aside class="sidebar" id="sidebar">
+                <div class="panel tileset-panel">
+                    <div class="canvas-container">
+                        <canvas id="atlasCanvas"></canvas>
+                    </div>
+                </div>
+                
+                <div class="panel layers-panel">
+                    <div class="layer-list" id="palette">
+                        <div class="layer-item selected">
+                            0
+                            <button>👁️</button>
+                            <button>✏️</button>
+                            <span>Ground</span>
+                            <button>✖️</button>
+                        </div>
+                        <div class="layer-item">
+                            1
+                            <button>👁️</button>
+                            <button>✏️</button>
+                            <span>Foliage</span>
+                            <button>✖️</button>
+                        </div>
+                        <div class="layer-item">
+                            2
+                            <button>👁️</button>
+                            <button>✏️</button>
+                            <span>Trees</span>
+                            <button>✖️</button>
+                        </div>
+                        <div class="layer-item">
+                            3
+                            <button>👁️</button>
+                            <button>✏️</button>
+                            <span>Houses</span>
+                            <button>✖️</button>
+                        </div>
+                    </div>
+                    <div class="layer-actions">
+                        <button>➕ Add</button>
+                        <button>🔼 Up</button>
+                        <button>🔽 Down</button>
+                    </div>
+                </div>
+            </aside>
+            
+            <div class="resizer" id="dragbar"></div>
+
+            <main class="editor-view">
+                <canvas id="mapCanvas"></canvas>
+            </main>
+        </div>
+    </div>
+
+    <script src="global.js"></script>
+	<script src="camera.js"></script>
+	<script src="editor.js"></script>
+	<script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+:root {
+    --bg-dark: #0f0f0f;
+    --bg-panel: #1a1a1a;
+    --bg-header: #222222;
+    --border-color: #333333;
+    --accent-color: #ff9d5c; /* Or the blue seen in your selection */
+    --text-main: #d1d1d1;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-main);
+}
+
+.app-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+button {
+    background-color: #2a2a2a;
+    color: #cecece;
+    border: 1px solid #3d3d3d;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    outline: none;
+}
+
+/* Hover state: slightly brighter border and background */
+button:hover {
+    background-color: #333333;
+    border-color: #555555;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Active/Pressed state: looks "pushed" in */
+button:active {
+    background-color: #1e1e1e;
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+/* Primary/Action buttons (Optional) */
+button.primary {
+    background-color: #3e3e3e;
+    border-color: #666666;
+    color: #fff;
+}
+
+button.primary:hover {
+    background-color: #4a4a4a;
+    border-color: #888888;
+}
+
+/* --- TOP BAR --- */
+.top-bar {
+    background: #222;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* This pushes Left and Right to the edges */
+    padding: 0 15px;
+
+    user-select: none;           /* Standard syntax */
+    -webkit-user-select: none;   /* Safari/Chrome */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* IE/Edge */
+    
+    cursor: default;
+}
+
+/* Ensure the center group stays truly centered regardless of side content width */
+.top-bar-left, .top-bar-right {
+    flex: 1; /* These take up equal space to "push" the center */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 40px
+}
+
+.top-bar-right {
+    justify-content: flex-end; /* Align tools to the far right */
+}
+
+.top-bar-center {
+    display: flex;
+    justify-content: center;
+}
+
+/* --- MAIN LAYOUT --- */
+.main-layout {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+}
+
+.sidebar {
+    width: 500px;
+    height: 92%;
+    overflow: hidden;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 15px;
+}
+
+.tileset-panel {
+    flex-shrink: 0; /* Prevents this panel from collapsing */
+    margin-bottom: 10px;
+}
+
+.layers-panel {
+    flex: 1;        /* Grow to fill all space not used by the tileset */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;  /* Crucial for flex child scrolling */
+}
+
+.layer-list {
+    flex: 1;
+    overflow-y: auto; /* The scrollbar lives here now */
+    background: #111;
+}
+
+/* The Grabber */
+.resizer {
+    width: 4px;
+    cursor: col-resize;
+    background-color: #111;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.resizer:hover, .resizer:active {
+    background-color: #ff9d5c; /* Highlights when you hover/drag */
+}
+
+.panel {
+    border: 1px solid var(--border-color);
+    background: #111;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    padding: 6px 10px;
+    font-weight: bold;
+    background: #252525;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.canvas-container {
+    height: 500px;
+    overflow: auto;
+}
+
+/* --- THE MAP AREA --- */
+.editor-view {
+    flex: 1; /* Takes up all remaining space */
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #050505;
+}
+
+#mapCanvas {
+    /* Set specific width/height in JS, CSS keeps it centered */
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    background-color: #000;
+}
+
+canvas {
+    /* Prevents the browser from 'grabbing' the canvas as a file */
+    user-select: none;
+    -webkit-user-drag: none;
+    
+    /* Ensures the mouse acts as a pointer for your JS logic */
+    touch-action: none; 
+}
+
+/* --- BUTTONS & INTERFACE --- */
+
+.layer-item {
+    display: flex;
+    justify-content: baseline;
+    padding: 4px;
+    background: #222;
+    border-bottom: 1px solid #111;
+    border-top: 1px solid #111;
+    align-items: center;
+    gap: 8px;
+}
+
+.layer-item span {
+    flex-grow: 1;        /* This makes the span fill all available space */
+    font-size: 15px;
+    color: #cecece;
+    white-space: nowrap; /* Prevents the text from wrapping */
+    overflow: hidden;    /* Clips text if it gets too long */
+    text-overflow: ellipsis; /* Adds '...' if the text is cut off */
+
+    user-select: none;           /* Standard syntax */
+    -webkit-user-select: none;   /* Safari/Chrome */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* IE/Edge */
+    
+    cursor: default;
+}
+
+.layer-item.selected {
+    background: #525252;
+    font-weight: bolder;
+}
+
+.layer-actions {
+    flex-shrink: 0;
+    padding: 4px;
+    display: row;
+    background: #1f1f1f;
+    gap: 2px;
+}

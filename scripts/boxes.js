@@ -7,6 +7,7 @@ const dupBtn = document.getElementById('dupBtn');
 const visibilityBtn = document.getElementById('visibilityBtn');
 const colorSwatches = document.getElementById('colorSwatches');
 const labelPosBtn = document.getElementById('labelPosBtn');
+const addItemBtn = document.getElementById('addItemBtn');
 
 const BOX_COLORS = [
     '#909098', // gray
@@ -47,12 +48,33 @@ let boxCount = 0;
 let draggedItem = null;
 
 function createItem(boxData) {
+    const group = document.createElement('div');
+    group.className = 'box-group';
+    group._box = boxData;
+
     const item = document.createElement('div');
     item.className = 'box-item';
     item.setAttribute('draggable', true);
-    item.innerHTML = `<span class="box-id"></span><button class="eye-btn">👁️</button><span class="box-name">${boxData.name}</span><button class="del-btn">✖️</button>`;
+    item.innerHTML = `<button class="expand-btn">▶</button><button class="eye-btn">👁️</button><span class="box-id"></span><span class="box-name">${boxData.name}</span><button class="del-btn">✖️</button>`;
     item._box = boxData;
     item.style.setProperty('--item-color', boxData.color);
+
+    const expandBtn = item.querySelector('.expand-btn');
+    expandBtn.style.display = 'none';
+
+    const children = document.createElement('div');
+    children.className = 'item-children';
+    children.hidden = true;
+
+    group._item = item;
+    group._children = children;
+
+    expandBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        children.hidden = !children.hidden;
+        expandBtn.textContent = children.hidden ? '▶' : '▼';
+        boxData.collapsed = children.hidden;
+    });
 
     const eyeBtn = item.querySelector('.eye-btn');
     eyeBtn.addEventListener('click', () => {
@@ -67,8 +89,8 @@ function createItem(boxData) {
 
     item.querySelector('.del-btn').addEventListener('click', () => {
         const wasSelected = item.classList.contains('selected');
-        boxes.splice(boxes.indexOf(item._box), 1);
-        item.remove();
+        boxes.splice(boxes.indexOf(boxData), 1);
+        group.remove();
         syncBoxIds();
         drawView();
         if (wasSelected) select(boxList.querySelector('.box-item'));
@@ -77,13 +99,13 @@ function createItem(boxData) {
     item.addEventListener('mouseenter', () => { hoveredBox = boxData; drawView(); });
     item.addEventListener('mouseleave', () => { hoveredBox = null; drawView(); });
 
-    item.addEventListener('dblclick', (e) => {
+    item.addEventListener('dblclick', e => {
         if (e.target.tagName === 'BUTTON') return;
         focusBox(boxData);
     });
 
-    item.addEventListener('dragstart', (e) => {
-        draggedItem = item;
+    item.addEventListener('dragstart', e => {
+        draggedItem = group;
         const ghost = document.createElement('div');
         ghost.className = 'drag-ghost';
         ghost.textContent = boxData.name;
@@ -101,24 +123,50 @@ function createItem(boxData) {
         draggedItem = null;
     });
 
-    item.addEventListener('dragover', (e) => {
+    item.addEventListener('dragover', e => {
         e.preventDefault();
-        if (item === draggedItem) return;
+        if (group === draggedItem) return;
         boxList.querySelectorAll('.box-item').forEach(i => i.classList.remove('drag-over-top', 'drag-over-bottom'));
         const mid = item.getBoundingClientRect().top + item.getBoundingClientRect().height / 2;
         item.classList.add(e.clientY < mid ? 'drag-over-top' : 'drag-over-bottom');
     });
 
-    item.addEventListener('drop', (e) => {
+    item.addEventListener('drop', e => {
         e.preventDefault();
-        if (!draggedItem || item === draggedItem) return;
+        if (!draggedItem || group === draggedItem) return;
         const mid = item.getBoundingClientRect().top + item.getBoundingClientRect().height / 2;
-        if (e.clientY < mid) item.before(draggedItem);
-        else item.after(draggedItem);
+        if (e.clientY < mid) group.before(draggedItem);
+        else group.after(draggedItem);
         syncBoxesOrder();
     });
 
-    return item;
+    group.append(item, children);
+    return group;
+}
+
+function syncItemIds(group, boxData) {
+    group._children.querySelectorAll('.item-row').forEach((row, i) => {
+        row.querySelector('.item-index').textContent = i;
+    });
+}
+
+function createItemRow(boxData, group, itemData) {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML = `<span class="item-index"></span><span class="item-name">${itemData.name}</span><button class="del-item-btn">✖️</button>`;
+
+    row.querySelector('.del-item-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        boxData.items.splice(boxData.items.indexOf(itemData), 1);
+        row.remove();
+        syncItemIds(group, boxData);
+        if (!boxData.items.length) {
+            group._item.querySelector('.expand-btn').style.display = 'none';
+            group._children.hidden = true;
+        }
+    });
+
+    return row;
 }
 
 function createScreenItem() {
@@ -162,11 +210,13 @@ function select(item) {
             setActiveSwatch(null);
             colorSwatches.style.display = 'none';
             labelPosBtn.style.display = 'none';
+            addItemBtn.style.display = 'none';
         } else {
             inspectorId.textContent = `#${boxes.indexOf(item._box)}`;
             setActiveSwatch(item._box.color);
             colorSwatches.style.display = '';
             labelPosBtn.style.display = '';
+            addItemBtn.style.display = '';
             visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
             visibilityBtn.disabled = !!item._box.targets?.v;
             updateLabelPosBtn(item._box);
@@ -181,6 +231,7 @@ function select(item) {
         setActiveSwatch(null);
         colorSwatches.style.display = '';
         labelPosBtn.style.display = '';
+        addItemBtn.style.display = 'none';
         inspector.style.display = 'none';
     }
     drawView();
@@ -337,12 +388,12 @@ addBtn.addEventListener('click', () => {
     const maxOffset = Math.min(w - 120, h - 80) - 40;
     const offset = maxOffset > 0 ? (boxes.length * 20) % maxOffset : 0;
     const color = BOX_COLORS[0];
-    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelBottom: false, targets: {}, formulas: { x: 'mx', y: 'my', w: 'mw', h: 'mh' } };
+    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelBottom: false, targets: {}, formulas: { x: 'mx', y: 'my', w: 'mw', h: 'mh' }, items: [] };
     boxes.push(boxData);
-    const item = createItem(boxData);
-    boxList.append(item);
+    const group = createItem(boxData);
+    boxList.append(group);
     syncBoxIds();
-    select(item);
+    select(group._item);
 });
 
 dupBtn.addEventListener('click', () => {
@@ -350,13 +401,30 @@ dupBtn.addEventListener('click', () => {
     if (!selectedItem || selectedItem._box.isScreen) return;
     boxCount++;
     const src = selectedItem._box;
-    const boxData = { ...src, name: src.name + ' copy', x: src.x + 10, y: src.y + 10, formulas: src.formulas ? { ...src.formulas } : undefined, targets: { ...(src.targets ?? {}) } };
+    const boxData = { ...src, name: src.name + ' copy', x: src.x + 10, y: src.y + 10, items: [], formulas: src.formulas ? { ...src.formulas } : undefined, targets: { ...(src.targets ?? {}) } };
     const idx = boxes.indexOf(src);
     boxes.splice(idx + 1, 0, boxData);
-    const item = createItem(boxData);
-    selectedItem.after(item);
+    const group = createItem(boxData);
+    selectedItem.closest('.box-group').after(group);
     syncBoxIds();
-    select(item);
+    select(group._item);
+});
+
+addItemBtn.addEventListener('click', () => {
+    const selectedItem = getSelected();
+    if (!selectedItem || selectedItem._box.isScreen) return;
+    const box = selectedItem._box;
+    if (!box.items) box.items = [];
+    const itemData = { name: `Item ${box.items.length + 1}` };
+    box.items.push(itemData);
+    const group = selectedItem.closest('.box-group');
+    const expandBtn = selectedItem.querySelector('.expand-btn');
+    expandBtn.style.display = '';
+    group._children.hidden = false;
+    expandBtn.textContent = '▼';
+    box.collapsed = false;
+    group._children.append(createItemRow(box, group, itemData));
+    syncItemIds(group, box);
 });
 
 // screen box — always at the end of boxes (renders behind everything)

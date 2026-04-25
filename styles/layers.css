@@ -48,6 +48,10 @@
     background: #2a2a2a;
 }
 
+.box-item.hidden {
+    opacity: 0.35;
+}
+
 .inspector {
     flex-shrink: 0;
     border: 1px solid var(--border-color);
@@ -72,23 +76,70 @@
     flex-shrink: 0;
 }
 
-.inspector-row input {
+.inspector-name-row {
+    display: flex;
+    align-items: center;
+}
+
+.name-input-wrap {
+    position: relative;
+    flex: 1;
+}
+
+#visibilityBtn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 26px;
+    padding: 0;
+    border: none;
+    border-left: 1px solid var(--border-color);
+    border-radius: 0 3px 3px 0;
+    background: #111;
+}
+
+#visibilityBtn:hover {
+    background: #1c1c1c;
+    box-shadow: none;
+    border-color: #555;
+}
+
+#visibilityBtn.hidden-state {
+    opacity: 0.4;
+}
+
+#visibilityBtn.hidden-state::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    right: 4px;
+    height: 1.5px;
+    background: #ccc;
+    transform: translateY(-50%) rotate(-40deg);
+    border-radius: 1px;
+    pointer-events: none;
+}
+
+.inspector input {
     background: #111;
     border: 1px solid var(--border-color);
     border-radius: 3px;
     color: var(--text-main);
     font-size: 13px;
     padding: 4px 6px;
+    padding-right: 30px;
     outline: none;
     width: 100%;
     box-sizing: border-box;
 }
 
-.inspector-row input:focus {
+.inspector input:focus {
     border-color: #555;
 }
 
-.inspector-row input:disabled {
+.inspector input:disabled {
     color: #444;
 }
 
@@ -103,11 +154,52 @@
     height: 22px;
 }
 
+.color-swatches {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+}
+
+.color-swatch {
+    flex: 1;
+    min-width: 0;
+    height: 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.color-swatch:hover {
+    opacity: 0.85;
+}
+
+.color-swatch.active {
+    border-color: #fff;
+}
+
 .box-item button {
     width: 24px;
     height: 24px;
     padding: 0;
     flex-shrink: 0;
+    position: relative;
+}
+
+.box-item button.hidden-state {
+    opacity: 0.4;
+}
+
+.box-item button.hidden-state::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    right: 4px;
+    height: 1.5px;
+    background: #ccc;
+    transform: translateY(-50%) rotate(-40deg);
+    border-radius: 1px;
+    pointer-events: none;
 }
 
 .box-item[draggable] {

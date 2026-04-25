@@ -2,7 +2,42 @@ const boxList = document.getElementById('palette');
 const addBtn = document.getElementById('addBtn');
 const inspectorName = document.getElementById('inspectorName');
 const inspector = document.getElementById('inspector');
-const focusBtn = document.getElementById('focusBtn');
+const visibilityBtn = document.getElementById('visibilityBtn');
+const colorSwatches = document.getElementById('colorSwatches');
+
+const BOX_COLORS = [
+    '#909098', // gray
+    '#e84040', // red
+    '#f07820', // orange
+    '#d4c018', // yellow
+    '#7cc820', // lime
+    '#18b850', // green
+    '#18a8a0', // teal
+    '#2080f0', // blue
+    '#6848e0', // indigo
+    '#a028cc', // purple
+];
+
+BOX_COLORS.forEach(color => {
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch';
+    swatch.style.background = color;
+    swatch.dataset.color = color;
+    swatch.addEventListener('click', () => {
+        const item = getSelected();
+        if (!item) return;
+        item._box.color = color;
+        setActiveSwatch(color);
+        drawView();
+    });
+    colorSwatches.appendChild(swatch);
+});
+
+function setActiveSwatch(color) {
+    colorSwatches.querySelectorAll('.color-swatch').forEach(s =>
+        s.classList.toggle('active', s.dataset.color === color)
+    );
+}
 
 let boxCount = 0;
 let draggedItem = null;
@@ -14,13 +49,28 @@ function createItem(boxData) {
     item.innerHTML = `<button>👁️</button><span>${boxData.name}</span><button>✖️</button>`;
     item._box = boxData;
 
+    const eyeBtn = item.querySelector('button:first-child');
+    eyeBtn.addEventListener('click', () => {
+        boxData.visible = !boxData.visible;
+        item.classList.toggle('hidden', !boxData.visible);
+        eyeBtn.classList.toggle('hidden-state', !boxData.visible);
+        if (item.classList.contains('selected'))
+            visibilityBtn.classList.toggle('hidden-state', !boxData.visible);
+        drawView();
+    });
+
     item.querySelector('button:last-child').addEventListener('click', () => {
         const wasSelected = item.classList.contains('selected');
         boxes.splice(boxes.indexOf(item._box), 1);
         item.remove();
-        updateVisibility();
+
         drawView();
         if (wasSelected) select(boxList.querySelector('.box-item'));
+    });
+
+    item.addEventListener('dblclick', (e) => {
+        if (e.target.tagName === 'BUTTON') return;
+        focusBox(boxData);
     });
 
     item.addEventListener('dragstart', (e) => {
@@ -73,9 +123,6 @@ function getSelected() {
     return boxList.querySelector('.box-item.selected');
 }
 
-function updateVisibility() {
-    inspector.style.display = boxList.children.length > 0 ? '' : 'none';
-}
 
 function select(item) {
     boxList.querySelectorAll('.box-item').forEach(b => b.classList.remove('selected'));
@@ -83,21 +130,33 @@ function select(item) {
         item.classList.add('selected');
         inspectorName.value = item._box.name;
         inspectorName.disabled = false;
+        setActiveSwatch(item._box.color);
+        visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
+        inspector.style.display = '';
     } else {
         inspectorName.value = '';
         inspectorName.disabled = true;
+        setActiveSwatch(null);
+        inspector.style.display = 'none';
     }
     drawView();
 }
 
-focusBtn.addEventListener('click', () => {
-    const item = getSelected();
-    if (!item) return;
-    const box = item._box;
+function focusBox(box) {
     const editorRect = document.querySelector('.editor-view').getBoundingClientRect();
     const canvasRect = canvas.getBoundingClientRect();
     camera.x = (editorRect.left - canvasRect.left) + editorRect.width / 2 - (box.x + box.w / 2) * camera.zoom;
     camera.y = (editorRect.top - canvasRect.top) + editorRect.height / 2 - (box.y + box.h / 2) * camera.zoom;
+    drawView();
+}
+
+visibilityBtn.addEventListener('click', () => {
+    const item = getSelected();
+    if (!item) return;
+    item._box.visible = !item._box.visible;
+    item.classList.toggle('hidden', !item._box.visible);
+    item.querySelector('button:first-child').classList.toggle('hidden-state', !item._box.visible);
+    visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
     drawView();
 });
 
@@ -120,10 +179,10 @@ addBtn.addEventListener('click', () => {
     const { w, h } = getViewSize();
     const maxOffset = Math.min(w - 120, h - 80) - 40;
     const offset = maxOffset > 0 ? (boxes.length * 20) % maxOffset : 0;
-    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true };
+    const color = BOX_COLORS[0];
+    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color };
     boxes.unshift(boxData);
     const item = createItem(boxData);
     boxList.prepend(item);
-    updateVisibility();
     select(item);
 });

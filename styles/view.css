@@ -24,8 +24,7 @@ canvas {
     touch-action: none; 
 }
 
-#mapCanvas {
-    /* Set specific width/height in JS, CSS keeps it centered */
+#view {
     box-shadow: 0 0 50px rgba(0,0,0,0.5);
     background-color: #000;
 }

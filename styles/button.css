@@ -29,15 +29,3 @@ button:active {
     transform: translateY(1px);
     box-shadow: none;
 }
-
-/* Primary/Action buttons (Optional) */
-button.primary {
-    background-color: #3e3e3e;
-    border-color: #666666;
-    color: #fff;
-}
-
-button.primary:hover {
-    background-color: #4a4a4a;
-    border-color: #888888;
-}

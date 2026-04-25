@@ -19,6 +19,8 @@ canvas.addEventListener('mousedown', (e) => {
             isDragging = true;
             dragOffset = { x: world.x - hit.x, y: world.y - hit.y };
             canvas.style.cursor = 'grabbing';
+        } else {
+            select(null);
         }
     }
     lastMousePos = { x: e.clientX, y: e.clientY };
@@ -92,6 +94,13 @@ function getViewSize() {
     };
 }
 
+function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+}
+
 function drawView() {
     const { w, h } = getViewSize();
 
@@ -107,18 +116,27 @@ function drawView() {
     const selectedBox = selectedItem?._box ?? null;
 
     for (const box of [...boxes].reverse()) {
-        if (!box.visible) continue;
+        const c = box.color ?? '#5b9bd9';
+        const isSelected = box === selectedBox;
+        const isHovered = box === hoveredBox;
 
-        ctx.fillStyle = box === hoveredBox && box !== selectedBox ? '#282828' : '#232323';
+        if (!box.visible) ctx.globalAlpha = 0.2;
+
+        ctx.fillStyle = '#1c1c1c';
         ctx.fillRect(box.x, box.y, box.w, box.h);
 
-        ctx.strokeStyle = box === selectedBox ? '#666' : box === hoveredBox ? '#444' : '#333';
-        ctx.lineWidth = 1 / camera.zoom;
+        ctx.fillStyle = hexToRgba(c, isSelected && isHovered ? 0.28 : isSelected ? 0.2 : isHovered ? 0.14 : 0.1);
+        ctx.fillRect(box.x, box.y, box.w, box.h);
+
+        ctx.strokeStyle = isSelected ? 'rgba(255,255,255,0.9)' : hexToRgba(c, isHovered ? 0.7 : 0.45);
+        ctx.lineWidth = (isSelected ? 1.5 : 1) / camera.zoom;
         ctx.strokeRect(box.x, box.y, box.w, box.h);
 
-        ctx.fillStyle = '#555';
+        ctx.fillStyle = hexToRgba(c, isSelected ? 0.9 : 0.6);
         ctx.font = `${11 / camera.zoom}px 'Segoe UI', sans-serif`;
         ctx.fillText(box.name, box.x + 4 / camera.zoom, box.y + 14 / camera.zoom);
+
+        if (!box.visible) ctx.globalAlpha = 1;
     }
 
     ctx.restore();

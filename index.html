@@ -18,8 +18,8 @@
     <div class="app-wrapper">
         <header class="top-bar">
             <div class="top-bar-left">
-                <button id="save">💾 Save UI</button>
-                <button id="load">📥 Load UI</button>
+                <button id="save">💾 Save</button>
+                <button id="load">📥 Load</button>
             </div>
 
             <div class="top-bar-center">
@@ -50,13 +50,13 @@
                     </div>
                     <div class="box-list" id="palette"></div>
                     <div class="inspector" id="inspector" style="display:none">
-                        <div class="inspector-actions">
-                            <button id="focusBtn">Focus</button>
+                        <div class="inspector-name-row">
+                            <div class="name-input-wrap">
+                                <input type="text" id="inspectorName" placeholder="Name" disabled>
+                                <button id="visibilityBtn">👁️</button>
+                            </div>
                         </div>
-                        <div class="inspector-row">
-                            <label>Name</label>
-                            <input type="text" id="inspectorName" placeholder="—" disabled>
-                        </div>
+                        <div id="colorSwatches" class="color-swatches"></div>
                     </div>
                 </div>
             </aside>

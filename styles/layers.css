@@ -231,6 +231,55 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
+.formula-help-btn {
+    width: 13px;
+    height: 13px;
+    min-width: 0;
+    padding: 0;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 50%;
+    background: #222;
+    border: 1px solid #3a3a3a;
+    color: #555;
+    line-height: 1;
+    flex-shrink: 0;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.formula-help-btn:hover {
+    background: #2a2a2a;
+    border-color: #555;
+    color: #888;
+    box-shadow: none;
+}
+
+.formula-help-panel {
+    display: none;
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 3px;
+    padding: 7px 8px;
+    font-size: 10px;
+    color: #666;
+    line-height: 1.7;
+    grid-column: 1 / -1;
+}
+
+.formula-help-panel.visible {
+    display: block;
+}
+
+.formula-help-panel b {
+    color: #888;
+    font-weight: 600;
 }
 
 .dim-target {

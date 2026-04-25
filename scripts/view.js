@@ -69,6 +69,7 @@ window.addEventListener('mouseup', () => {
 window.addEventListener('resize', updateSize);
 
 updateSize();
+resetView();
 
 function updateSize() {
     canvas.width = window.innerWidth;

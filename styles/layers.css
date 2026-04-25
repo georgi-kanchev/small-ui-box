@@ -25,7 +25,7 @@
     align-items: center;
     gap: 6px;
     padding: 5px 8px;
-    background: #1e1e1e;
+    background: color-mix(in srgb, var(--item-color, transparent) 10%, #1e1e1e);
     border-bottom: 1px solid #111;
     cursor: pointer;
 }
@@ -45,7 +45,7 @@
 }
 
 .box-item.selected {
-    background: #2a2a2a;
+    background: color-mix(in srgb, var(--item-color, transparent) 16%, #2a2a2a);
 }
 
 .box-item.hidden {

@@ -10,7 +10,7 @@ let hoveredHandle = null;
 let activeSnapX = null;
 let activeSnapY = null;
 
-const MIN_BOX_SIZE = 16;
+const MIN_BOX_SIZE = 4;
 const SNAP_PX = 8; // screen-space snap threshold
 
 const HANDLE_CURSORS = {
@@ -153,7 +153,7 @@ canvas.addEventListener('mousedown', (e) => {
             resizeHandle = handle;
             resizeStart = { mouseX: world.x, mouseY: world.y, box: { ...selectedBox } };
         } else {
-            const hit = boxes.find(b =>
+            const hit = boxes.findLast(b =>
                 !b.isScreen &&
                 world.x >= b.x && world.x <= b.x + b.w &&
                 world.y >= b.y && world.y <= b.y + b.h
@@ -211,7 +211,7 @@ window.addEventListener('mousemove', (e) => {
         if (handle) {
             canvas.style.cursor = HANDLE_CURSORS[handle];
         } else {
-            const hit = boxes.find(b =>
+            const hit = boxes.findLast(b =>
                 !b.isScreen &&
                 world.x >= b.x && world.x <= b.x + b.w &&
                 world.y >= b.y && world.y <= b.y + b.h
@@ -290,7 +290,7 @@ function drawView() {
     const selectedItem = document.querySelector('.box-item.selected');
     const selectedBox = selectedItem?._box ?? null;
 
-    for (const box of [...boxes].reverse()) {
+    for (const box of boxes) {
         const isSelected = box === selectedBox;
 
         if (box.isScreen) {

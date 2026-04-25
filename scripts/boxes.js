@@ -27,6 +27,7 @@ BOX_COLORS.forEach(color => {
         const item = getSelected();
         if (!item || item._box.isScreen) return;
         item._box.color = color;
+        item.style.setProperty('--item-color', color);
         setActiveSwatch(color);
         drawView();
     });
@@ -48,6 +49,7 @@ function createItem(boxData) {
     item.setAttribute('draggable', true);
     item.innerHTML = `<button>👁️</button><span>${boxData.name}</span><button>✖️</button>`;
     item._box = boxData;
+    item.style.setProperty('--item-color', boxData.color);
 
     const eyeBtn = item.querySelector('button:first-child');
     eyeBtn.addEventListener('click', () => {
@@ -202,9 +204,9 @@ addBtn.addEventListener('click', () => {
     const offset = maxOffset > 0 ? (boxes.length * 20) % maxOffset : 0;
     const color = BOX_COLORS[0];
     const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color };
-    boxes.unshift(boxData);
+    boxes.push(boxData);
     const item = createItem(boxData);
-    boxList.prepend(item);
+    boxList.append(item);
     select(item);
 });
 
@@ -220,5 +222,5 @@ const screenBox = {
     color: '#909098',
 };
 
-boxes.push(screenBox);
-boxList.appendChild(createScreenItem());
+boxes.unshift(screenBox);
+boxList.prepend(createScreenItem());

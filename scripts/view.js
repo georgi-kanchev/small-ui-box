@@ -7,8 +7,11 @@ let dragOffset = { x: 0, y: 0 };
 let lastMousePos = { x: 0, y: 0 };
 let hoveredBox = null;
 let hoveredHandle = null;
+let activeSnapX = null;
+let activeSnapY = null;
 
 const MIN_BOX_SIZE = 16;
+const SNAP_PX = 8; // screen-space snap threshold
 
 const HANDLE_CURSORS = {
     nw: 'nw-resize', n: 'n-resize', ne: 'ne-resize',
@@ -59,6 +62,83 @@ function applyResize(box, handle, dx, dy, start) {
     box.x = x; box.y = y; box.w = w; box.h = h;
 }
 
+// --- snapping ---
+
+function getSnapTargets(excludeBox) {
+    const xs = [], ys = [];
+    for (const b of boxes) {
+        if (b === excludeBox) continue;
+        if (!b.visible && !b.isScreen) continue; // screen box always snap-eligible
+        xs.push(b.x, b.x + b.w / 2, b.x + b.w);
+        ys.push(b.y, b.y + b.h / 2, b.y + b.h);
+    }
+    return { xs, ys };
+}
+
+function findBestSnap(candidates, targets, threshold) {
+    let bestDist = threshold;
+    let best = null;
+    for (const c of candidates) {
+        for (const t of targets) {
+            const dist = Math.abs(c - t);
+            if (dist < bestDist) { bestDist = dist; best = { delta: t - c, snapAt: t }; }
+        }
+    }
+    return best;
+}
+
+function snapDrag(box) {
+    const threshold = SNAP_PX / camera.zoom;
+    const { xs, ys } = getSnapTargets(box);
+
+    const sx = findBestSnap([box.x, box.x + box.w / 2, box.x + box.w], xs, threshold);
+    const sy = findBestSnap([box.y, box.y + box.h / 2, box.y + box.h], ys, threshold);
+
+    activeSnapX = sx ? sx.snapAt : null;
+    activeSnapY = sy ? sy.snapAt : null;
+
+    if (sx) box.x += sx.delta;
+    if (sy) box.y += sy.delta;
+}
+
+function snapResize(box, handle) {
+    const threshold = SNAP_PX / camera.zoom;
+    const { xs, ys } = getSnapTargets(box);
+
+    const snapX = handle.includes('w') ? findBestSnap([box.x], xs, threshold)
+                : handle.includes('e') ? findBestSnap([box.x + box.w], xs, threshold)
+                : null;
+    const snapY = handle.includes('n') ? findBestSnap([box.y], ys, threshold)
+                : handle.includes('s') ? findBestSnap([box.y + box.h], ys, threshold)
+                : null;
+
+    activeSnapX = snapX ? snapX.snapAt : null;
+    activeSnapY = snapY ? snapY.snapAt : null;
+
+    if (snapX) {
+        if (handle.includes('w')) {
+            const newX = box.x + snapX.delta;
+            const newW = box.w - snapX.delta;
+            if (newW >= MIN_BOX_SIZE) { box.x = newX; box.w = newW; }
+        } else {
+            const newW = box.w + snapX.delta;
+            if (newW >= MIN_BOX_SIZE) box.w = newW;
+        }
+    }
+    if (snapY) {
+        if (handle.includes('n')) {
+            const newY = box.y + snapY.delta;
+            const newH = box.h - snapY.delta;
+            if (newH >= MIN_BOX_SIZE) { box.y = newY; box.h = newH; }
+        } else {
+            const newH = box.h + snapY.delta;
+            if (newH >= MIN_BOX_SIZE) box.h = newH;
+        }
+    }
+}
+
+// --- input ---
+
 canvas.addEventListener('mousedown', (e) => {
     if (e.button === 1) {
         isPanning = true;
@@ -67,13 +147,14 @@ canvas.addEventListener('mousedown', (e) => {
         const selectedItem = document.querySelector('.box-item.selected');
         const selectedBox = selectedItem?._box ?? null;
 
-        const handle = selectedBox ? getHandleAt(world, selectedBox) : null;
+        const handle = selectedBox && !selectedBox.isScreen ? getHandleAt(world, selectedBox) : null;
         if (handle) {
             isResizing = true;
             resizeHandle = handle;
             resizeStart = { mouseX: world.x, mouseY: world.y, box: { ...selectedBox } };
         } else {
             const hit = boxes.find(b =>
+                !b.isScreen &&
                 world.x >= b.x && world.x <= b.x + b.w &&
                 world.y >= b.y && world.y <= b.y + b.h
             );
@@ -101,9 +182,11 @@ window.addEventListener('mousemove', (e) => {
         const world = screenToWorld(e.clientX, e.clientY, canvas);
         const selectedItem = document.querySelector('.box-item.selected');
         if (selectedItem?._box) {
+            const box = selectedItem._box;
             const dx = world.x - resizeStart.mouseX;
             const dy = world.y - resizeStart.mouseY;
-            applyResize(selectedItem._box, resizeHandle, dx, dy, resizeStart.box);
+            applyResize(box, resizeHandle, dx, dy, resizeStart.box);
+            snapResize(box, resizeHandle);
             canvas.style.cursor = HANDLE_CURSORS[resizeHandle];
             drawView();
         }
@@ -111,8 +194,10 @@ window.addEventListener('mousemove', (e) => {
         const world = screenToWorld(e.clientX, e.clientY, canvas);
         const selectedItem = document.querySelector('.box-item.selected');
         if (selectedItem?._box) {
-            selectedItem._box.x = world.x - dragOffset.x;
-            selectedItem._box.y = world.y - dragOffset.y;
+            const box = selectedItem._box;
+            box.x = world.x - dragOffset.x;
+            box.y = world.y - dragOffset.y;
+            snapDrag(box);
             drawView();
         }
     } else {
@@ -120,24 +205,19 @@ window.addEventListener('mousemove', (e) => {
         const selectedItem = document.querySelector('.box-item.selected');
         const selectedBox = selectedItem?._box ?? null;
 
-        const handle = selectedBox ? getHandleAt(world, selectedBox) : null;
-        if (handle !== hoveredHandle) {
-            hoveredHandle = handle;
-            drawView();
-        }
+        const handle = selectedBox && !selectedBox.isScreen ? getHandleAt(world, selectedBox) : null;
+        if (handle !== hoveredHandle) { hoveredHandle = handle; drawView(); }
 
         if (handle) {
             canvas.style.cursor = HANDLE_CURSORS[handle];
         } else {
             const hit = boxes.find(b =>
+                !b.isScreen &&
                 world.x >= b.x && world.x <= b.x + b.w &&
                 world.y >= b.y && world.y <= b.y + b.h
             ) ?? null;
             canvas.style.cursor = hit ? 'pointer' : 'default';
-            if (hit !== hoveredBox) {
-                hoveredBox = hit;
-                drawView();
-            }
+            if (hit !== hoveredBox) { hoveredBox = hit; drawView(); }
         }
     }
     lastMousePos = { x: e.clientX, y: e.clientY };
@@ -154,7 +234,10 @@ window.addEventListener('mouseup', () => {
     isResizing = false;
     resizeHandle = null;
     resizeStart = null;
+    activeSnapX = null;
+    activeSnapY = null;
     canvas.style.cursor = 'default';
+    drawView();
 });
 
 window.addEventListener('resize', updateSize);
@@ -208,8 +291,16 @@ function drawView() {
     const selectedBox = selectedItem?._box ?? null;
 
     for (const box of [...boxes].reverse()) {
-        const c = box.color ?? '#5b9bd9';
         const isSelected = box === selectedBox;
+
+        if (box.isScreen) {
+            ctx.strokeStyle = isSelected ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1 / camera.zoom;
+            ctx.strokeRect(box.x, box.y, box.w, box.h);
+            continue;
+        }
+
+        const c = box.color ?? '#5b9bd9';
         const isHovered = box === hoveredBox;
 
         if (!box.visible) ctx.globalAlpha = 0.2;
@@ -231,7 +322,23 @@ function drawView() {
         if (!box.visible) ctx.globalAlpha = 1;
     }
 
-    if (selectedBox) {
+    // snap lines
+    if (activeSnapX !== null || activeSnapY !== null) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(80, 180, 255, 0.75)';
+        ctx.lineWidth = 1 / camera.zoom;
+        ctx.setLineDash([4 / camera.zoom, 3 / camera.zoom]);
+        if (activeSnapX !== null) {
+            ctx.beginPath(); ctx.moveTo(activeSnapX, 0); ctx.lineTo(activeSnapX, h); ctx.stroke();
+        }
+        if (activeSnapY !== null) {
+            ctx.beginPath(); ctx.moveTo(0, activeSnapY); ctx.lineTo(w, activeSnapY); ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    // resize handles
+    if (selectedBox && !selectedBox.isScreen) {
         const hs = 5 / camera.zoom;
         const handles = getResizeHandles(selectedBox);
         ctx.lineWidth = 1 / camera.zoom;

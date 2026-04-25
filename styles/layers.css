@@ -231,3 +231,13 @@
 .box-item.drag-over-bottom {
     box-shadow: 0 2px 0 var(--accent-color);
 }
+
+.box-item.screen-item {
+    cursor: default;
+    border-top: 1px solid #1e1e1e;
+}
+
+.box-item.screen-item span {
+    color: #666;
+    font-style: italic;
+}

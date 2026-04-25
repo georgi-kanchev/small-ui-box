@@ -25,7 +25,7 @@ BOX_COLORS.forEach(color => {
     swatch.dataset.color = color;
     swatch.addEventListener('click', () => {
         const item = getSelected();
-        if (!item) return;
+        if (!item || item._box.isScreen) return;
         item._box.color = color;
         setActiveSwatch(color);
         drawView();
@@ -112,6 +112,15 @@ function createItem(boxData) {
     return item;
 }
 
+function createScreenItem() {
+    const item = document.createElement('div');
+    item.className = 'box-item screen-item';
+    item.innerHTML = `<span>Screen</span>`;
+    item._box = screenBox;
+    item.addEventListener('click', () => select(item));
+    return item;
+}
+
 function syncBoxesOrder() {
     const items = [...boxList.querySelectorAll('.box-item')];
     boxes.length = 0;
@@ -123,20 +132,32 @@ function getSelected() {
     return boxList.querySelector('.box-item.selected');
 }
 
-
 function select(item) {
     boxList.querySelectorAll('.box-item').forEach(b => b.classList.remove('selected'));
     if (item) {
         item.classList.add('selected');
         inspectorName.value = item._box.name;
-        inspectorName.disabled = false;
-        setActiveSwatch(item._box.color);
-        visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
+        inspectorName.disabled = !!item._box.isScreen;
+        if (item._box.isScreen) {
+            setActiveSwatch(null);
+            colorSwatches.style.display = 'none';
+            visibilityBtn.style.display = 'none';
+            inspectorName.style.paddingRight = '6px';
+        } else {
+            setActiveSwatch(item._box.color);
+            colorSwatches.style.display = '';
+            visibilityBtn.style.display = '';
+            inspectorName.style.paddingRight = '';
+            visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
+        }
         inspector.style.display = '';
     } else {
         inspectorName.value = '';
         inspectorName.disabled = true;
+        inspectorName.style.paddingRight = '';
         setActiveSwatch(null);
+        colorSwatches.style.display = '';
+        visibilityBtn.style.display = '';
         inspector.style.display = 'none';
     }
     drawView();
@@ -162,7 +183,7 @@ visibilityBtn.addEventListener('click', () => {
 
 inspectorName.addEventListener('input', () => {
     const item = getSelected();
-    if (!item) return;
+    if (!item || item._box.isScreen) return;
     item._box.name = inspectorName.value;
     item.querySelector('span').textContent = inspectorName.value;
     drawView();
@@ -171,7 +192,7 @@ inspectorName.addEventListener('input', () => {
 boxList.addEventListener('click', (e) => {
     if (e.target.tagName === 'BUTTON') return;
     const item = e.target.closest('.box-item');
-    if (item) select(item);
+    if (item && !item.classList.contains('screen-item')) select(item);
 });
 
 addBtn.addEventListener('click', () => {
@@ -186,3 +207,18 @@ addBtn.addEventListener('click', () => {
     boxList.prepend(item);
     select(item);
 });
+
+// screen box — always at the end of boxes (renders behind everything)
+const screenBox = {
+    name: 'Screen',
+    get x() { return 0; },
+    get y() { return 0; },
+    get w() { return getViewSize().w; },
+    get h() { return getViewSize().h; },
+    visible: true,
+    isScreen: true,
+    color: '#909098',
+};
+
+boxes.push(screenBox);
+boxList.appendChild(createScreenItem());

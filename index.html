@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="styles/view.css">
     <link rel="stylesheet" href="styles/topbar.css">
     <link rel="stylesheet" href="styles/sidebar.css">
-    <link rel="stylesheet" href="styles/layers.css">
 </head>
 <body>
 
@@ -63,7 +62,19 @@
                         <div class="dim-rows">
                             <div class="dim-row dim-header">
                                 <span class="dim-label"></span>
-                                <span class="dim-col-label">Value <button id="formulaHelpBtn" class="formula-help-btn">?</button></span>
+                                <span class="dim-col-label">Value
+                                    <span class="formula-help-wrap">
+                                        <button id="formulaHelpBtn" class="formula-help-btn">?</button>
+                                        <div id="formulaHelp" class="formula-help-panel">
+                                            Values support math expressions and variables.
+                                            <table class="formula-help-table">
+                                                <td>My</td><td>mx my mw mh</td></tr>
+                                                <td>Screen</td><td>sx sy sw sh</td></tr>
+                                                <td>Target</td><td>tx ty tw th tv</td></tr>
+                                            </table>
+                                        </div>
+                                    </span>
+                                </span>
                                 <span class="dim-col-label">Target</span>
                             </div>
                             <div class="dim-row">
@@ -91,7 +102,6 @@
                                 <input id="inputH" class="dim-input" type="text">
                                 <select id="targetH" class="dim-target"></select>
                             </div>
-                            <div id="formulaHelp" class="formula-help-panel"></div>
                         </div>
                     </div>
                 </div>

@@ -127,7 +127,68 @@
                                 <select id="targetH" class="dim-target"></select>
                             </div>
                         </div>
-                        <button id="addItemBtn" style="display:none">➕ Item</button>
+                        <div id="itemsSection" style="display:none">
+                            <div class="items-divider"></div>
+                            <div class="items-header">
+                                <span class="items-header-label">Item Defaults:</span>
+                                <button id="addItemBtn">➕ Add Item</button>
+                            </div>
+                            <div class="item-config-rows">
+                                <div class="item-config-row">
+                                    <span class="item-config-label">Width</span>
+                                    <input id="itemWidth" class="dim-input" type="text">
+                                    <span class="item-config-label">Height</span>
+                                    <input id="itemHeight" class="dim-input" type="text">
+                                </div>
+                                <div class="item-config-row">
+                                    <span class="item-config-label">Margin</span>
+                                    <input id="itemMargin" class="dim-input" type="number" min="0" step="1">
+                                    <span class="item-config-label">Gap</span>
+                                    <input id="itemGap" class="dim-input" type="number" min="0" step="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inspector" id="itemInspector" style="display:none">
+                        <div class="name-group">
+                            <div class="inspector-name-row">
+                                <div class="name-input-wrap">
+                                    <input type="text" id="itemInspName" placeholder="Name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dim-rows">
+                            <div class="dim-row dim-header">
+                                <span id="itemInspId" class="inspector-id"></span>
+                                <span class="dim-col-label">Value</span>
+                                <span class="dim-col-label">Target</span>
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">V</span>
+                                <button id="itemVisBtn">👁️</button>
+                                <select id="itemTargetV" class="dim-target"></select>
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">X</span>
+                                <input id="itemInputX" class="dim-input" type="text">
+                                <select id="itemTargetX" class="dim-target"></select>
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">Y</span>
+                                <input id="itemInputY" class="dim-input" type="text">
+                                <select id="itemTargetY" class="dim-target"></select>
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">W</span>
+                                <input id="itemInputW" class="dim-input" type="text">
+                                <select id="itemTargetW" class="dim-target"></select>
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">H</span>
+                                <input id="itemInputH" class="dim-input" type="text">
+                                <select id="itemTargetH" class="dim-target"></select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </aside>

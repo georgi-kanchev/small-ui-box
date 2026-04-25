@@ -200,27 +200,46 @@ window.addEventListener('mousemove', (e) => {
             snapDrag(box);
             drawView();
         }
-    } else {
-        const world = screenToWorld(e.clientX, e.clientY, canvas);
-        const selectedItem = document.querySelector('.box-item.selected');
-        const selectedBox = selectedItem?._box ?? null;
-
-        const handle = selectedBox && !selectedBox.isScreen ? getHandleAt(world, selectedBox) : null;
-        if (handle !== hoveredHandle) { hoveredHandle = handle; drawView(); }
-
-        if (handle) {
-            canvas.style.cursor = HANDLE_CURSORS[handle];
-        } else {
-            const hit = boxes.findLast(b =>
-                !b.isScreen &&
-                world.x >= b.x && world.x <= b.x + b.w &&
-                world.y >= b.y && world.y <= b.y + b.h
-            ) ?? null;
-            canvas.style.cursor = hit ? 'pointer' : 'default';
-            if (hit !== hoveredBox) { hoveredBox = hit; drawView(); }
-        }
     }
     lastMousePos = { x: e.clientX, y: e.clientY };
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    if (isPanning || isResizing || isDragging) return;
+
+    const world = screenToWorld(e.clientX, e.clientY, canvas);
+    const selectedItem = document.querySelector('.box-item.selected');
+    const selectedBox = selectedItem?._box ?? null;
+
+    const handle = selectedBox && !selectedBox.isScreen ? getHandleAt(world, selectedBox) : null;
+    if (handle !== hoveredHandle) { hoveredHandle = handle; drawView(); }
+
+    if (handle) {
+        canvas.style.cursor = HANDLE_CURSORS[handle];
+    } else {
+        const hit = boxes.findLast(b =>
+            !b.isScreen &&
+            world.x >= b.x && world.x <= b.x + b.w &&
+            world.y >= b.y && world.y <= b.y + b.h
+        ) ?? null;
+        canvas.style.cursor = hit ? 'pointer' : 'default';
+        if (hit !== hoveredBox) {
+            hoveredBox = hit;
+            boxList.querySelectorAll('.box-item').forEach(i =>
+                i.classList.toggle('list-hovered', i._box === hoveredBox)
+            );
+            drawView();
+        }
+    }
+});
+
+canvas.addEventListener('mouseleave', () => {
+    if (isPanning || isResizing || isDragging) return;
+    hoveredBox = null;
+    hoveredHandle = null;
+    boxList.querySelectorAll('.box-item').forEach(i => i.classList.remove('list-hovered'));
+    canvas.style.cursor = 'default';
+    drawView();
 });
 
 canvas.addEventListener('wheel', (e) => {
@@ -236,6 +255,8 @@ window.addEventListener('mouseup', () => {
     resizeStart = null;
     activeSnapX = null;
     activeSnapY = null;
+    hoveredBox = null;
+    boxList.querySelectorAll('.box-item').forEach(i => i.classList.remove('list-hovered'));
     canvas.style.cursor = 'default';
     drawView();
 });
@@ -290,6 +311,7 @@ function drawView() {
     const selectedItem = document.querySelector('.box-item.selected');
     const selectedBox = selectedItem?._box ?? null;
 
+    // pass 1: bodies
     for (const box of boxes) {
         const isSelected = box === selectedBox;
 
@@ -315,10 +337,21 @@ function drawView() {
         ctx.lineWidth = (isSelected ? 1.5 : 1) / camera.zoom;
         ctx.strokeRect(box.x, box.y, box.w, box.h);
 
+        if (!box.visible) ctx.globalAlpha = 1;
+    }
+
+    // pass 2: labels always on top
+    for (const box of boxes) {
+        if (box.isScreen) continue;
+        const c = box.color ?? '#5b9bd9';
+        const isSelected = box === selectedBox;
+        if (!box.visible) ctx.globalAlpha = 0.2;
+        const labelY = box.labelBottom
+            ? box.y + box.h - 4 / camera.zoom
+            : box.y + 14 / camera.zoom;
         ctx.fillStyle = hexToRgba(c, isSelected ? 0.9 : 0.6);
         ctx.font = `${11 / camera.zoom}px 'Segoe UI', sans-serif`;
-        ctx.fillText(box.name, box.x + 4 / camera.zoom, box.y + 14 / camera.zoom);
-
+        ctx.fillText(box.name, box.x + 4 / camera.zoom, labelY);
         if (!box.visible) ctx.globalAlpha = 1;
     }
 

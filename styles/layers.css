@@ -12,6 +12,11 @@
     gap: 3px;
 }
 
+.box-actions button {
+    height: 28px;
+    line-height: 1;
+}
+
 .box-list {
     flex: 1;
     overflow-y: auto;
@@ -44,8 +49,18 @@
     cursor: pointer;
 }
 
+.box-item:hover,
+.box-item.list-hovered {
+    background: color-mix(in srgb, var(--item-color, transparent) 13%, #252525);
+}
+
 .box-item.selected {
     background: color-mix(in srgb, var(--item-color, transparent) 16%, #2a2a2a);
+}
+
+.box-item.selected:hover,
+.box-item.selected.list-hovered {
+    background: color-mix(in srgb, var(--item-color, transparent) 22%, #323232);
 }
 
 .box-item.hidden {
@@ -84,6 +99,28 @@
 .name-input-wrap {
     position: relative;
     flex: 1;
+}
+
+#labelPosBtn {
+    position: absolute;
+    right: 26px;
+    top: 0;
+    bottom: 0;
+    width: 26px;
+    padding: 0;
+    border: none;
+    border-left: 1px solid var(--border-color);
+    border-radius: 0;
+    background: #111;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+#labelPosBtn:hover {
+    background: #1c1c1c;
+    box-shadow: none;
+    border-color: #555;
 }
 
 #visibilityBtn {
@@ -129,7 +166,7 @@
     color: var(--text-main);
     font-size: 13px;
     padding: 4px 6px;
-    padding-right: 30px;
+    padding-right: 56px;
     outline: none;
     width: 100%;
     box-sizing: border-box;

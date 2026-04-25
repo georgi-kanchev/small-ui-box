@@ -2,8 +2,10 @@ const boxList = document.getElementById('palette');
 const addBtn = document.getElementById('addBtn');
 const inspectorName = document.getElementById('inspectorName');
 const inspector = document.getElementById('inspector');
+const dupBtn = document.getElementById('dupBtn');
 const visibilityBtn = document.getElementById('visibilityBtn');
 const colorSwatches = document.getElementById('colorSwatches');
+const labelPosBtn = document.getElementById('labelPosBtn');
 
 const BOX_COLORS = [
     '#909098', // gray
@@ -69,6 +71,9 @@ function createItem(boxData) {
         drawView();
         if (wasSelected) select(boxList.querySelector('.box-item'));
     });
+
+    item.addEventListener('mouseenter', () => { hoveredBox = boxData; drawView(); });
+    item.addEventListener('mouseleave', () => { hoveredBox = null; drawView(); });
 
     item.addEventListener('dblclick', (e) => {
         if (e.target.tagName === 'BUTTON') return;
@@ -137,28 +142,34 @@ function getSelected() {
 function select(item) {
     boxList.querySelectorAll('.box-item').forEach(b => b.classList.remove('selected'));
     if (item) {
+        dupBtn.style.display = item._box.isScreen ? 'none' : '';
         item.classList.add('selected');
         inspectorName.value = item._box.name;
         inspectorName.disabled = !!item._box.isScreen;
         if (item._box.isScreen) {
             setActiveSwatch(null);
             colorSwatches.style.display = 'none';
+            labelPosBtn.style.display = 'none';
             visibilityBtn.style.display = 'none';
             inspectorName.style.paddingRight = '6px';
         } else {
             setActiveSwatch(item._box.color);
             colorSwatches.style.display = '';
+            labelPosBtn.style.display = '';
             visibilityBtn.style.display = '';
             inspectorName.style.paddingRight = '';
             visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
+            updateLabelPosBtn(item._box);
         }
         inspector.style.display = '';
     } else {
+        dupBtn.style.display = 'none';
         inspectorName.value = '';
         inspectorName.disabled = true;
         inspectorName.style.paddingRight = '';
         setActiveSwatch(null);
         colorSwatches.style.display = '';
+        labelPosRow.style.display = '';
         visibilityBtn.style.display = '';
         inspector.style.display = 'none';
     }
@@ -183,6 +194,18 @@ visibilityBtn.addEventListener('click', () => {
     drawView();
 });
 
+function updateLabelPosBtn(box) {
+    labelPosBtn.textContent = box.labelBottom ? '▼' : '▲';
+}
+
+labelPosBtn.addEventListener('click', () => {
+    const item = getSelected();
+    if (!item || item._box.isScreen) return;
+    item._box.labelBottom = !item._box.labelBottom;
+    updateLabelPosBtn(item._box);
+    drawView();
+});
+
 inspectorName.addEventListener('input', () => {
     const item = getSelected();
     if (!item || item._box.isScreen) return;
@@ -203,10 +226,23 @@ addBtn.addEventListener('click', () => {
     const maxOffset = Math.min(w - 120, h - 80) - 40;
     const offset = maxOffset > 0 ? (boxes.length * 20) % maxOffset : 0;
     const color = BOX_COLORS[0];
-    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color };
+    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelBottom: false };
     boxes.push(boxData);
     const item = createItem(boxData);
     boxList.append(item);
+    select(item);
+});
+
+dupBtn.addEventListener('click', () => {
+    const selectedItem = getSelected();
+    if (!selectedItem || selectedItem._box.isScreen) return;
+    boxCount++;
+    const src = selectedItem._box;
+    const boxData = { ...src, name: src.name + ' copy', x: src.x + 10, y: src.y + 10 };
+    const idx = boxes.indexOf(src);
+    boxes.splice(idx + 1, 0, boxData);
+    const item = createItem(boxData);
+    selectedItem.after(item);
     select(item);
 });
 

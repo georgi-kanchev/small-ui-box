@@ -382,15 +382,19 @@ canvas.addEventListener('mouseleave', () => {
 });
 
 function clampBoxScroll(box) {
-    if (!box.scrollX && !box.scrollY) return;
+    if (!box.items?.length) return;
     const r = resolveBox(box);
     const laid = resolveItems(box);
     const visible = laid.filter(i => i.item.visible !== false);
     if (!visible.length) { box.scrollX = 0; box.scrollY = 0; return; }
     const contentW = Math.max(...visible.map(i => i.x + i.w)) - r.x;
     const contentH = Math.max(...visible.map(i => i.y + i.h)) - r.y;
-    box.scrollX = Math.max(0, Math.min(Math.max(0, contentW - r.w), box.scrollX ?? 0));
-    box.scrollY = Math.max(0, Math.min(Math.max(0, contentH - r.h), box.scrollY ?? 0));
+    const maxScrollX = Math.max(0, contentW - r.w);
+    const maxScrollY = Math.max(0, contentH - r.h);
+    const alignX = box.itemAlignX ?? 0;
+    const alignY = box.itemAlignY ?? 0;
+    box.scrollX = Math.max(0, Math.min(maxScrollX, box.scrollX ?? maxScrollX * alignX));
+    box.scrollY = Math.max(0, Math.min(maxScrollY, box.scrollY ?? maxScrollY * alignY));
 }
 
 canvas.addEventListener('wheel', (e) => {
@@ -402,18 +406,22 @@ canvas.addEventListener('wheel', (e) => {
         if (visible.length) {
             const contentW = Math.max(...visible.map(i => i.x + i.w)) - r.x;
             const contentH = Math.max(...visible.map(i => i.y + i.h)) - r.y;
-            const hasX = contentW > r.w + 0.5;
-            const hasY = contentH > r.h + 0.5;
+            const maxScrollX = Math.max(0, contentW - r.w);
+            const maxScrollY = Math.max(0, contentH - r.h);
+            const alignX = hov.itemAlignX ?? 0;
+            const alignY = hov.itemAlignY ?? 0;
+            const hasX = maxScrollX > 0.5;
+            const hasY = maxScrollY > 0.5;
             const scrollH = e.shiftKey ? hasX : (!hasY && hasX);
             if (scrollH) {
                 e.preventDefault();
-                hov.scrollX = Math.max(0, Math.min(contentW - r.w, (hov.scrollX ?? 0) + e.deltaY * 0.05));
+                hov.scrollX = Math.max(0, Math.min(maxScrollX, (hov.scrollX ?? maxScrollX * alignX) + e.deltaY * 0.05));
                 drawView();
                 return;
             }
             if (hasY && !e.shiftKey) {
                 e.preventDefault();
-                hov.scrollY = Math.max(0, Math.min(contentH - r.h, (hov.scrollY ?? 0) + e.deltaY * 0.05));
+                hov.scrollY = Math.max(0, Math.min(maxScrollY, (hov.scrollY ?? maxScrollY * alignY) + e.deltaY * 0.05));
                 drawView();
                 return;
             }
@@ -517,6 +525,15 @@ function drawView() {
         if (!box.items?.length) continue;
         const selItemState = typeof selectedItemState !== 'undefined' ? selectedItemState : null;
         const laid = resolveItems(box);
+        const visibleItems = laid.filter(i => i.item.visible !== false);
+        const osx = box.itemSpacingX ?? 0;
+        const osy = box.itemSpacingY ?? 0;
+        const alignX = box.itemAlignX ?? 0;
+        const alignY = box.itemAlignY ?? 0;
+        const naturalW = visibleItems.length ? Math.max(...visibleItems.map(i => i.x + i.w)) - (r.x + osx) : 0;
+        const naturalH = visibleItems.length ? Math.max(...visibleItems.map(i => i.y + i.h)) - (r.y + osy) : 0;
+        const offX = Math.max(0, r.w - osx - naturalW) * alignX;
+        const offY = Math.max(0, r.h - osy - naturalH) * alignY;
         const scrollX = box.scrollX ?? 0;
         const scrollY = box.scrollY ?? 0;
 
@@ -524,7 +541,7 @@ function drawView() {
         ctx.beginPath();
         ctx.rect(r.x, r.y, r.w, r.h);
         ctx.clip();
-        ctx.translate(-scrollX, -scrollY);
+        ctx.translate(-scrollX + offX, -scrollY + offY);
         for (const { item, x, y, w, h } of laid) {
             if (!item.visible) continue;
             const isSelectedItem = selItemState?.itemData === item;
@@ -544,7 +561,6 @@ function drawView() {
         ctx.restore();
 
         // scroll handles — drawn after restore so they sit on top of the box, unclipped
-        const visibleItems = laid.filter(i => i.item.visible !== false);
         if (!visibleItems.length) continue;
         const contentW = Math.max(...visibleItems.map(i => i.x + i.w)) - r.x;
         const contentH = Math.max(...visibleItems.map(i => i.y + i.h)) - r.y;

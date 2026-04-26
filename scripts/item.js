@@ -5,6 +5,8 @@ const itemWidthInput = document.getElementById('itemWidth');
 const itemHeightInput = document.getElementById('itemHeight');
 const itemSpacingXInput = document.getElementById('itemSpacingX');
 const itemSpacingYInput = document.getElementById('itemSpacingY');
+const itemAlignXGroup = document.getElementById('itemAlignXGroup');
+const itemAlignYGroup = document.getElementById('itemAlignYGroup');
 const itemBreakInput = document.getElementById('itemBreak');
 const itemInspector = document.getElementById('itemInspector');
 const itemInspName = document.getElementById('itemInspName');
@@ -27,9 +29,22 @@ function createItemRow(boxData, group, itemData) {
 
     const row = document.createElement('div');
     row.className = 'item-row';
-    row.innerHTML = `<span class="item-index"></span><span class="item-name">${itemData.name}</span><button class="del-item-btn">✖️</button>`;
+    row.innerHTML = `<button class="eye-btn">👁️</button><span class="item-index"></span><span class="item-name">${itemData.name}</span><button class="del-item-btn">✖️</button>`;
     row._item = itemData;
     row._box = boxData;
+
+    const eyeBtn = row.querySelector('.eye-btn');
+    eyeBtn.classList.toggle('hidden-state', !itemData.visible);
+    row.classList.toggle('invisible', !itemData.visible);
+    eyeBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        itemData.visible = !itemData.visible;
+        eyeBtn.classList.toggle('hidden-state', !itemData.visible);
+        row.classList.toggle('invisible', !itemData.visible);
+        if (selectedItemState?.row === row)
+            itemVisBtn.classList.toggle('hidden-state', !itemData.visible);
+        drawView();
+    });
 
     row.addEventListener('click', e => {
         if (e.target.tagName === 'BUTTON') return;
@@ -101,6 +116,24 @@ for (const [input, key, numeric] of [
     });
 }
 
+function updateAlignBtns(group, val) {
+    group.querySelectorAll('button').forEach(btn => {
+        btn.classList.toggle('active', Number(btn.dataset.val) === val);
+    });
+}
+
+for (const [group, key] of [[itemAlignXGroup, 'itemAlignX'], [itemAlignYGroup, 'itemAlignY']]) {
+    group.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const item = getSelected();
+            if (!item || item._box.isScreen) return;
+            item._box[key] = Number(btn.dataset.val);
+            updateAlignBtns(group, item._box[key]);
+            drawView();
+        });
+    });
+}
+
 addItemBtn.addEventListener('click', () => {
     const selectedItem = getSelected();
     if (!selectedItem || selectedItem._box.isScreen) return;
@@ -129,7 +162,8 @@ itemInspName.addEventListener('input', () => {
 itemVisBtn.addEventListener('click', () => {
     if (!selectedItemState) return;
     selectedItemState.itemData.visible = !selectedItemState.itemData.visible;
-    selectedItemState.row.classList.toggle('hidden', !selectedItemState.itemData.visible);
+    selectedItemState.row.querySelector('.eye-btn').classList.toggle('hidden-state', !selectedItemState.itemData.visible);
+    selectedItemState.row.classList.toggle('invisible', !selectedItemState.itemData.visible);
     itemVisBtn.classList.toggle('hidden-state', !selectedItemState.itemData.visible);
     drawView();
 });

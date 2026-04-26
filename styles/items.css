@@ -40,6 +40,42 @@
     text-overflow: ellipsis;
 }
 
+.item-row .eye-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    position: relative;
+    box-shadow: none;
+}
+
+.item-row .eye-btn:hover {
+    box-shadow: none;
+}
+
+.item-row.invisible {
+    opacity: 0.35;
+}
+
+.item-row .eye-btn.hidden-state {
+    opacity: 0.4;
+}
+
+.item-row .eye-btn.hidden-state::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    right: 4px;
+    height: 1.5px;
+    background: #ccc;
+    transform: translateY(-50%) rotate(-40deg);
+    border-radius: 1px;
+    pointer-events: none;
+}
+
 .del-item-btn {
     background: none;
     border: none;
@@ -97,4 +133,35 @@
     color: #666;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+.align-btn-group {
+    display: flex;
+    gap: 2px;
+}
+
+.align-btn-group button {
+    flex: 1;
+    height: 22px;
+    padding: 0;
+    font-size: 11px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: #111;
+    color: #555;
+    min-width: 0;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.align-btn-group button:hover {
+    background: #1c1c1c;
+    border-color: #555;
+    color: #888;
+    box-shadow: none;
+}
+
+.align-btn-group button.active {
+    border-color: #ff9d5c;
+    color: #ff9d5c;
 }

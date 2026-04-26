@@ -1,5 +1,5 @@
 let aspectRatio = 16 / 9;
-let boxes = []; 
+let boxes = [];
 
 const canvas = document.getElementById('view');
 const ctx = canvas.getContext('2d');

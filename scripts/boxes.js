@@ -30,7 +30,7 @@ BOX_COLORS.forEach(color => {
         const item = getSelected();
         if (!item || item._box.isScreen) return;
         item._box.color = color;
-        item.style.setProperty('--item-color', color);
+        item.closest('.box-group').style.setProperty('--item-color', color);
         setActiveSwatch(color);
         drawView();
     });
@@ -54,9 +54,9 @@ function createItem(boxData) {
     const item = document.createElement('div');
     item.className = 'box-item';
     item.setAttribute('draggable', true);
-    item.innerHTML = `<button class="expand-btn">▶</button><button class="eye-btn">👁️</button><span class="box-id"></span><span class="box-name">${boxData.name}</span><button class="del-btn">✖️</button>`;
+    item.innerHTML = `<button class="expand-btn">▶</button><button class="eye-btn">👁️</button><span class="box-name">${boxData.name}</span><button class="del-btn">✖️</button>`;
     item._box = boxData;
-    item.style.setProperty('--item-color', boxData.color);
+    group.style.setProperty('--item-color', boxData.color);
 
     const expandBtn = item.querySelector('.expand-btn');
     expandBtn.style.display = 'none';
@@ -83,7 +83,7 @@ function createItem(boxData) {
         if (item.classList.contains('selected'))
             visibilityBtn.classList.toggle('hidden-state', !boxData.visible);
         children.querySelectorAll('.item-row').forEach(row => {
-            row.classList.toggle('hidden', !boxData.visible || row._item.visible === false);
+            row.classList.toggle('box-hidden', !boxData.visible);
         });
         syncVisibilityTargets();
         drawView();
@@ -91,9 +91,15 @@ function createItem(boxData) {
 
     item.querySelector('.del-btn').addEventListener('click', () => {
         const wasSelected = item.classList.contains('selected');
+        if (selectedItemState?.boxData === boxData) selectItemRow(null);
         boxes.splice(boxes.indexOf(boxData), 1);
         group.remove();
         syncBoxIds();
+        syncAllItemIds();
+        if (!wasSelected) {
+            const sel = getSelected();
+            if (sel?._box && !sel._box.isScreen) inspectorId.textContent = `Box #${boxes.indexOf(sel._box)}`;
+        }
         drawView();
         if (wasSelected) select(boxList.querySelector('.box-item'));
     });
@@ -155,20 +161,16 @@ function createScreenItem() {
     return item;
 }
 
-function syncBoxIds() {
-    boxList.querySelectorAll('.box-item').forEach(item => {
-        const span = item.querySelector('.box-id');
-        if (span) span.textContent = boxes.indexOf(item._box);
-    });
-}
+function syncBoxIds() {}
 
 function syncBoxesOrder() {
     const items = [...boxList.querySelectorAll('.box-item')];
     boxes.length = 0;
     items.forEach(item => boxes.push(item._box));
+    syncAllItemIds();
     syncBoxIds();
     const sel = getSelected();
-    if (sel?._box && !sel._box.isScreen) inspectorId.textContent = `#${boxes.indexOf(sel._box)}`;
+    if (sel?._box && !sel._box.isScreen) inspectorId.textContent = `Box #${boxes.indexOf(sel._box)}`;
     drawView();
 }
 
@@ -243,7 +245,7 @@ visibilityBtn.addEventListener('click', () => {
     item.querySelector('.eye-btn').classList.toggle('hidden-state', !item._box.visible);
     visibilityBtn.classList.toggle('hidden-state', !item._box.visible);
     item.closest('.box-group')._children.querySelectorAll('.item-row').forEach(row => {
-        row.classList.toggle('hidden', !item._box.visible || row._item.visible === false);
+        row.classList.toggle('box-hidden', !item._box.visible);
     });
     syncVisibilityTargets();
     drawView();
@@ -282,6 +284,9 @@ function syncVisibilityTargets() {
             listItem.classList.toggle('hidden', !newVisible);
             const eyeBtn = listItem.querySelector('.eye-btn');
             if (eyeBtn) eyeBtn.classList.toggle('hidden-state', !newVisible);
+            listItem.closest('.box-group')._children.querySelectorAll('.item-row').forEach(row => {
+                row.classList.toggle('box-hidden', !newVisible);
+            });
         }
     }
     const selected = getSelected();
@@ -398,12 +403,20 @@ dupBtn.addEventListener('click', () => {
     if (!selectedItem || selectedItem._box.isScreen) return;
     boxCount++;
     const src = selectedItem._box;
-    const boxData = { ...src, name: src.name + ' copy', x: src.x + 10, y: src.y + 10, items: [], formulas: src.formulas ? { ...src.formulas } : undefined, targets: { ...(src.targets ?? {}) } };
+    const dupedItems = (src.items ?? []).map(it => ({ ...it, formulas: it.formulas ? { ...it.formulas } : undefined }));
+    const boxData = { ...src, name: src.name + ' copy', x: src.x + 10, y: src.y + 10, items: dupedItems, formulas: src.formulas ? { ...src.formulas } : undefined, targets: { ...(src.targets ?? {}) } };
     const idx = boxes.indexOf(src);
     boxes.splice(idx + 1, 0, boxData);
     const group = createItem(boxData);
+    if (dupedItems.length) {
+        group._item.querySelector('.expand-btn').style.display = '';
+        group._children.hidden = !!boxData.collapsed;
+        group._item.querySelector('.expand-btn').textContent = boxData.collapsed ? '▶' : '▼';
+        dupedItems.forEach(it => group._children.append(createItemRow(boxData, group, it)));
+    }
     selectedItem.closest('.box-group').after(group);
     syncBoxIds();
+    syncAllItemIds();
     select(group._item);
 });
 

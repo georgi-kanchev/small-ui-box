@@ -28,12 +28,12 @@
 }
 
 .box-item.selected {
-    background: color-mix(in srgb, var(--item-color, transparent) 16%, #2a2a2a);
+    box-shadow: inset 2px 0 0 var(--item-color, var(--accent-color));
 }
 
 .box-item.selected:hover,
 .box-item.selected.list-hovered {
-    background: color-mix(in srgb, var(--item-color, transparent) 22%, #323232);
+    box-shadow: inset 2px 0 0 var(--item-color, var(--accent-color));
 }
 
 .box-item.hidden {
@@ -119,6 +119,14 @@
 
 .box-item.drag-over-bottom {
     box-shadow: 0 2px 0 var(--accent-color);
+}
+
+.box-group {
+    border-bottom: 2px solid #111;
+}
+
+.box-group:last-child {
+    border-bottom: none;
 }
 
 .box-item.screen-item {

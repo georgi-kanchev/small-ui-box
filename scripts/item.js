@@ -17,10 +17,17 @@ const itemBreakInp = document.getElementById('itemBreakInp');
 
 let selectedItemState = null;
 
-function syncItemIds(group, boxData) {
-    group._children.querySelectorAll('.item-row').forEach((row, i) => {
-        row.querySelector('.item-index').textContent = i;
+function syncAllItemIds() {
+    let idx = 0;
+    boxList.querySelectorAll('.box-group').forEach(group => {
+        group.querySelectorAll('.item-row').forEach(row => {
+            row.querySelector('.item-index').textContent = idx++;
+        });
     });
+    if (selectedItemState) {
+        const { row } = selectedItemState;
+        itemInspId.textContent = `Item #${row.querySelector('.item-index').textContent} in Box #${boxes.indexOf(row._box)}`;
+    }
 }
 
 function createItemRow(boxData, group, itemData) {
@@ -56,7 +63,8 @@ function createItemRow(boxData, group, itemData) {
         if (selectedItemState?.row === row) selectItemRow(null);
         boxData.items.splice(boxData.items.indexOf(itemData), 1);
         row.remove();
-        syncItemIds(group, boxData);
+        syncAllItemIds();
+        drawView();
         if (!boxData.items.length) {
             group._item.querySelector('.expand-btn').style.display = 'none';
             group._children.hidden = true;
@@ -82,7 +90,7 @@ function selectItemRow(row) {
     dupBtn.style.display = 'none';
     itemInspector.style.display = '';
     itemInspName.value = row._item.name;
-    itemInspId.textContent = `Item #${row._box.items.indexOf(row._item)} in Box #${boxes.indexOf(row._box)}`;
+    itemInspId.textContent = `Item #${row.querySelector('.item-index').textContent} in Box #${boxes.indexOf(row._box)}`;
     itemVisBtn.classList.toggle('hidden-state', !row._item.visible);
     itemBreakBtn.classList.toggle('active', !!row._item.break);
     itemBreakInp.style.display = row._item.break ? '' : 'none';
@@ -148,7 +156,7 @@ addItemBtn.addEventListener('click', () => {
     expandBtn.textContent = '▼';
     box.collapsed = false;
     group._children.append(createItemRow(box, group, itemData));
-    syncItemIds(group, box);
+    syncAllItemIds();
     drawView();
 });
 

@@ -345,13 +345,13 @@ for (const dim of DIM_KEYS) {
 }
 
 function updateLabelPosBtn(box) {
-    labelPosBtn.textContent = box.labelBottom ? '▼' : '▲';
+    labelPosBtn.textContent = box.labelRight ? '▶' : '◀';
 }
 
 labelPosBtn.addEventListener('click', () => {
     const item = getSelected();
     if (!item || item._box.isScreen) return;
-    item._box.labelBottom = !item._box.labelBottom;
+    item._box.labelRight = !item._box.labelRight;
     updateLabelPosBtn(item._box);
     drawView();
 });
@@ -376,7 +376,7 @@ addBtn.addEventListener('click', () => {
     const maxOffset = Math.min(w - 120, h - 80) - 40;
     const offset = maxOffset > 0 ? (boxes.length * 20) % maxOffset : 0;
     const color = BOX_COLORS[0];
-    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelBottom: false, targets: {}, formulas: { x: 'mx', y: 'my', w: 'mw', h: 'mh' }, items: [], itemGap: 0, itemWidth: 40, itemHeight: 20, itemSpacing: 0 };
+    const boxData = { name: `Box ${boxCount}`, x: 20 + offset, y: 20 + offset, w: 120, h: 80, visible: true, color, labelRight: false, targets: {}, formulas: { x: 'mx', y: 'my', w: 'mw', h: 'mh' }, items: [], itemGap: 0, itemWidth: 40, itemHeight: 20, itemSpacing: 0 };
     boxes.push(boxData);
     const group = createItem(boxData);
     boxList.append(group);

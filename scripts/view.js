@@ -468,7 +468,12 @@ function drawView() {
     const selItemState = typeof selectedItemState !== 'undefined' ? selectedItemState : null;
     for (const box of boxes) {
         if (box.isScreen || !box.visible || !box.items?.length) continue;
+        const r = resolveBox(box);
         const c = box.color ?? '#5b9bd9';
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(r.x, r.y, r.w, r.h);
+        ctx.clip();
         for (const { item, x, y, w, h } of resolveItems(box)) {
             if (!item.visible) continue;
             const isSelectedItem = selItemState?.itemData === item;
@@ -481,6 +486,7 @@ function drawView() {
             ctx.font = `${10 / camera.zoom}px 'Segoe UI', sans-serif`;
             ctx.fillText(item.name, x + 3 / camera.zoom, y + 12 / camera.zoom);
         }
+        ctx.restore();
     }
 
     // pass 2: labels always on top
@@ -489,12 +495,16 @@ function drawView() {
         const r = resolveBox(box);
         const c = box.color ?? '#5b9bd9';
         const isSelected = box === selectedBox;
-        const labelY = box.labelBottom
-            ? r.y + r.h - 4 / camera.zoom
-            : r.y + 14 / camera.zoom;
+        const labelY = r.y + r.h - 4 / camera.zoom;
         ctx.fillStyle = hexToRgba(c, isSelected ? 0.9 : 0.6);
         ctx.font = `${11 / camera.zoom}px 'Segoe UI', sans-serif`;
-        ctx.fillText(box.name, r.x + 4 / camera.zoom, labelY);
+        if (box.labelRight) {
+            ctx.textAlign = 'right';
+            ctx.fillText(box.name, r.x + r.w - 4 / camera.zoom, labelY);
+            ctx.textAlign = 'left';
+        } else {
+            ctx.fillText(box.name, r.x + 4 / camera.zoom, labelY);
+        }
     }
 
     // snap lines

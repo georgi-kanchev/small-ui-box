@@ -17,6 +17,7 @@ function setupFormulaHelp(btnId, panelId) {
 
 setupFormulaHelp('formulaHelpBtn', 'formulaHelp');
 setupFormulaHelp('itemFormulaHelpBtn', 'itemFormulaHelp');
+setupFormulaHelp('sharedHelpBtn', 'sharedHelp');
 
 document.addEventListener('click', () => {
     document.querySelectorAll('.formula-help-panel.visible').forEach(p => p.classList.remove('visible'));
@@ -31,7 +32,7 @@ dragbar.addEventListener('mousedown', (e) => {
 
 function resize(e) {
     let newWidth = e.clientX; 
-    newWidth = Math.max(newWidth, 210);
+    newWidth = Math.max(newWidth, 280);
     newWidth = Math.min(800, newWidth);
     sidebar.style.width = newWidth + 'px';
 }

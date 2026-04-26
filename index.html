@@ -62,7 +62,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="dim-rows">
+                        <div class="dim-rows box-dim-rows">
                             <div class="dim-row dim-header">
                                 <span id="inspectorId" class="inspector-id"></span>
                                 <span class="dim-col-label">Value
@@ -105,7 +105,7 @@
                                 <span class="dim-col-label">Target</span>
                             </div>
                             <div class="dim-row">
-                                <span class="dim-label">V</span>
+                                <span class="dim-label">Visible</span>
                                 <button id="visibilityBtn">👁️</button>
                                 <select id="targetV" class="dim-target"></select>
                             </div>
@@ -120,12 +120,12 @@
                                 <select id="targetY" class="dim-target"></select>
                             </div>
                             <div class="dim-row">
-                                <span class="dim-label">W</span>
+                                <span class="dim-label">Width</span>
                                 <input id="inputW" class="dim-input" type="text">
                                 <select id="targetW" class="dim-target"></select>
                             </div>
                             <div class="dim-row">
-                                <span class="dim-label">H</span>
+                                <span class="dim-label">Height</span>
                                 <input id="inputH" class="dim-input" type="text">
                                 <select id="targetH" class="dim-target"></select>
                             </div>
@@ -133,7 +133,25 @@
                         <div id="itemsSection" style="display:none">
                             <div class="items-divider"></div>
                             <div class="items-header">
-                                <span class="items-header-label">Item Defaults:</span>
+                                <span class="items-header-label">Shared Item Values
+                                    <span class="formula-help-wrap">
+                                        <button id="sharedHelpBtn" class="formula-help-btn">?</button>
+                                        <div id="sharedHelp" class="formula-help-panel">
+                                            Values shared across all items in this box.<br><br>
+                                            Variables in item formulas:<br><br>
+                                            <div class="formula-help-cols">
+                                                <table class="formula-help-table">
+                                                    <tr><td>mw</td><td>My Shared Width</td></tr>
+                                                    <tr><td>mh</td><td>My Shared Height</td></tr>
+                                                </table>
+                                                <table class="formula-help-table">
+                                                    <tr><td>os</td><td>Spacing</td></tr>
+                                                    <tr><td>og</td><td>Gap</td></tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </span>
+                                </span>
                                 <button id="addItemBtn">➕ Add Item</button>
                             </div>
                             <div class="item-config-rows">

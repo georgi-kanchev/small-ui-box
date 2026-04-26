@@ -17,11 +17,11 @@
 }
 
 .item-row.selected {
-    box-shadow: inset 2px 0 0 var(--item-color, var(--accent-color));
+    box-shadow: inset 0 0 0 1px var(--item-color, var(--accent-color));
 }
 
 .item-row.selected:hover {
-    box-shadow: inset 2px 0 0 var(--item-color, var(--accent-color));
+    box-shadow: inset 0 0 0 1px var(--item-color, var(--accent-color));
 }
 
 .item-index {

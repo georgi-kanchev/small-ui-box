@@ -143,6 +143,7 @@
                                                 <table class="formula-help-table">
                                                     <tr><td>mw</td><td>My Shared Width</td></tr>
                                                     <tr><td>mh</td><td>My Shared Height</td></tr>
+                                                    <tr><td>mb</td><td>My Shared Break</td></tr>
                                                 </table>
                                                 <table class="formula-help-table">
                                                     <tr><td>os</td><td>Spacing</td></tr>
@@ -166,6 +167,10 @@
                                     <input id="itemSpacing" class="dim-input" type="number" min="0" step="1">
                                     <span class="item-config-label">Gap</span>
                                     <input id="itemGap" class="dim-input" type="number" min="0" step="1">
+                                </div>
+                                <div class="item-config-row">
+                                    <span class="item-config-label">Break</span>
+                                    <input id="itemBreak" class="dim-input" type="number" min="0" step="1">
                                 </div>
                             </div>
                         </div>
@@ -205,6 +210,7 @@
                                                     <tr><td>v</td><td>Visible</td></tr>
                                                     <tr><td>s</td><td>Spacing</td></tr>
                                                     <tr><td>g</td><td>Gap</td></tr>
+                                                    <tr><td>b</td><td>Break</td></tr>
                                                 </table>
                                             </div>
                                         </div>
@@ -214,6 +220,13 @@
                             <div class="dim-row">
                                 <span class="dim-label">Visible</span>
                                 <button id="itemVisBtn">👁️</button>
+                            </div>
+                            <div class="dim-row">
+                                <span class="dim-label">Break</span>
+                                <div class="break-wrap">
+                                    <button id="itemBreakBtn" class="break-toggle">↵</button>
+                                    <input id="itemBreakInp" class="dim-input" type="text" placeholder="mb">
+                                </div>
                             </div>
                             <div class="dim-row">
                                 <span class="dim-label">X</span>

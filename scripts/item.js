@@ -4,10 +4,13 @@ const itemGapInput = document.getElementById('itemGap');
 const itemWidthInput = document.getElementById('itemWidth');
 const itemHeightInput = document.getElementById('itemHeight');
 const itemSpacingInput = document.getElementById('itemSpacing');
+const itemBreakInput = document.getElementById('itemBreak');
 const itemInspector = document.getElementById('itemInspector');
 const itemInspName = document.getElementById('itemInspName');
 const itemInspId = document.getElementById('itemInspId');
 const itemVisBtn = document.getElementById('itemVisBtn');
+const itemBreakBtn = document.getElementById('itemBreakBtn');
+const itemBreakInp = document.getElementById('itemBreakInp');
 
 let selectedItemState = null;
 
@@ -65,6 +68,8 @@ function selectItemRow(row) {
     itemInspName.value = row._item.name;
     itemInspId.textContent = `#${row._box.items.indexOf(row._item)}`;
     itemVisBtn.classList.toggle('hidden-state', !row._item.visible);
+    itemBreakBtn.classList.toggle('active', !!row._item.break);
+    itemBreakInp.style.display = row._item.break ? '' : 'none';
     updateItemInspectorDimensions();
     drawView();
 }
@@ -76,6 +81,7 @@ function updateItemInspectorDimensions() {
     document.getElementById('itemInputY').value = f.y ?? '';
     document.getElementById('itemInputW').value = f.w ?? '';
     document.getElementById('itemInputH').value = f.h ?? '';
+    itemBreakInp.value = f.break ?? '';
 }
 
 for (const [input, key, numeric] of [
@@ -83,6 +89,7 @@ for (const [input, key, numeric] of [
     [itemHeightInput, 'itemHeight', false],
     [itemSpacingInput, 'itemSpacing', true],
     [itemGapInput, 'itemGap', true],
+    [itemBreakInput, 'itemBreak', true],
 ]) {
     input.addEventListener('input', () => {
         const item = getSelected();
@@ -97,7 +104,7 @@ addItemBtn.addEventListener('click', () => {
     if (!selectedItem || selectedItem._box.isScreen) return;
     const box = selectedItem._box;
     if (!box.items) box.items = [];
-    const itemData = { name: `Item ${box.items.length + 1}`, formulas: { w: 'mw', h: 'mh' } };
+    const itemData = { name: `Item ${box.items.length + 1}`, formulas: { x: 'mx', y: 'my', w: 'mw', h: 'mh' } };
     box.items.push(itemData);
     const group = selectedItem.closest('.box-group');
     const expandBtn = selectedItem.querySelector('.expand-btn');
@@ -122,6 +129,27 @@ itemVisBtn.addEventListener('click', () => {
     selectedItemState.itemData.visible = !selectedItemState.itemData.visible;
     selectedItemState.row.classList.toggle('hidden', !selectedItemState.itemData.visible);
     itemVisBtn.classList.toggle('hidden-state', !selectedItemState.itemData.visible);
+    drawView();
+});
+
+itemBreakBtn.addEventListener('click', () => {
+    if (!selectedItemState) return;
+    const itemData = selectedItemState.itemData;
+    itemData.break = !itemData.break;
+    if (itemData.break && !itemData.formulas?.break) {
+        if (!itemData.formulas) itemData.formulas = {};
+        itemData.formulas.break = 'mb';
+    }
+    itemBreakBtn.classList.toggle('active', !!itemData.break);
+    itemBreakInp.style.display = itemData.break ? '' : 'none';
+    if (itemData.break) itemBreakInp.value = itemData.formulas.break;
+    drawView();
+});
+
+itemBreakInp.addEventListener('input', e => {
+    if (!selectedItemState) return;
+    if (!selectedItemState.itemData.formulas) selectedItemState.itemData.formulas = {};
+    selectedItemState.itemData.formulas.break = e.target.value;
     drawView();
 });
 
